@@ -1,0 +1,329 @@
+
+>mongo	//mongo basic interpreter
+
+> for (i=0;i<3;i++) print("hello, Mongoliaa");
+> for (i=0;i<3;i++) print("hello, Mongoliaa" + i);
+   //control +a /ctrl +e ...
+
+> x =1
+1
+> y = "abc"
+abc
+> z = {a:1}
+{ "a" : 1 }
+
+> z.a
+1
+
+>w="a"
+a
+><[w]
+1
+
+=========================================================> x = {"a" : 1}
+{ "a" : 1 }
+> y = "a";
+a
+> x[a]++;
+Thu Oct 17 17:21:12 ReferenceError: a is not defined (shell):1
+> x[y]++;
+1
+> print(x.a);
+2
+===========================================
+Represnt data -> key/value
+==========================
+obj = {"a":1, "b":"hello", "c":["apples","tomates"]}
+like bson
+//putting a doc in the db
+db.people.insert(obj);
+//insert a doc in fruit db
+> db.fruit.insert({"name":"apple", "color":"red","shape":"round"})
+//returnning
+db.people.find()
+_id -> is a primary key
+==================================================================================
+findOne()
+=====================================================
+>db.people.findOne()
+//analogous to where statement
+>db.people.fndOne({"name":"Jones"})
+
+//the second argument allows specify de proyection
+>db.people.findOne({"name":"Jones"}, {"name": true, "_id":false})
+
+==========================================================
+introduction to find
+================================================
+for (i=0;i<1000;i++) {
+  names=["exam","essay","quiz"]; 
+  for (j=0;j<3;j++) { 
+    db.scores.insert({"student":i, "type": names[j], score: Math.round(Math.random()*100)});
+  } 
+} 
+>db.scores.find()
+>it //show me more
+//detailed
+>db.scores.find().pretty()
+
+=====================================
+querying
+===================================
+>db.scores.find({"type":"essay"})
+//igual que finOne el primer parametro define la busqueda
+>db.scores.find({ student:19, "type":"essay"})
+// el segundo parametro define los parametros que quiero recibir
+>db.scores.find({ student:19, "type":"essay"},{"score":true, "_id":false})
+>db.scores.find({"type":essay,score:50},{student:true,_id:false})
+============================================
+Querying using $gt and $it
+=======================================
+//score should be grater than 95
+>db.scores.find({score:{$gt:95}})
+//score should be grater than 95 and type is essay
+>db.scores.find({"type":"essay",score:{$gt:95}})
+//score should be grater than 95 and less or equal than 98
+>db.scores.find({score:{$gt:95, $lte:98}})
+
+=============================================
+inequalities on strings
+===========================
+>db.people.find({name:{$gt:"D"}})
+
+>db.people.find({name:{$lt:"E",$gt:"D"}})
+==============================================
+using regexes, $exists, $type
+==============================================
+>db.people.find({profession:{$exists:true}})
+=====
+>db.people.find({profession:{$exists:false}})
+//string type is 2
+>db.people.find({name:{$type:2}})
+//patrones empiiecen por a
+>db.people.find({name:{$regex:"a"}})
+//patrones terminen por e
+>db.people.find({name:{$regex:"e$"}})
+//patrones empiecen por lo q sea y A
+>db.people.find({name:{$regex:"^A"}, email:{$exists:true}})
+=====================================================
+using $or
+=====================================================
+>db.people.find({$or:[{name:{$regex:"e$"}},{age:{$exists:true}}]});
+>db.scores.find({$or:[{score:{$lt:50},score:{$gt:90}}]});
+=====================================================
+using $and
+=====================================================
+>db.people.find({$and:[{name:{$regex:"a"}},{age:{$gt:50}}]});
+>db.scores.find({$or:[{score:{$lt:50},score:{$gt:90}}]});
+=============================================================
+Querying inside arrays
+=====================================================
+> db.accounts.insert({name:"George", favorites:["ice cream","pretzels"]});
+> db.accounts.insert({name:"Howards", favorites:["pretzels","beer"]});
+...
+////buscar todos los documentos que contienen un componente del array
+>db.accounts.find({favorites:"pretzels"})    //es polimorfico
+>db.accounts.find({favorites:"beer"})    //es polimorfico
+
+==============================================================
+Using $in and $all 
+================================================
+//subset of elements
+>db.accounts.find({favorities:{$all:["pretzels","beer"]}})
+//either or other
+>db.accounts.find({favorities:{$in:["pretzels","beer"]}})
+==================================================
+queries with dot notation
+==========================================000
+>db.users.find({"email.work":"gdizquierdo@gmail.com"})
+
+
+=====================================================
+querying cursors 
+=================================
+//una quety que devuleve docus ordenados por score, en orden descendiente y saltando los primeros 50
+db.scores.find({type:"exam"}).sort({score:-1}).skip(50).limit(20)
+
+>cur=db.people.find(); null;
+null
+> cur.hasNext()
+true
+> cur.next()
+{
+	"_id" : ObjectId("52600d511c2994fd84db568c"),
+	"student" : 0,
+	"type" : "exam",
+	"score" : 6
+}
+//bucle que imprime todos los docus
+>while (cur.hasNext()) printjson(cur.next());
+
+>cur=db.people.find(); null;
+>cur.limit(5);null;
+//de 5 en 5
+>while (cur.hasNext()) printjson(cur.next());
+
+//ahora con sort
+>cur=db.people.find(); null;
+>cur.sort((name:-1));  null;
+>while (cur.hasNext()) printjson(cur.next());
+
+//limit y sort se pueden combinar
+>cur.sort((name:-1)).limit(3);  null;
+
+//skip modifica un cursor y devuelve el cursor modificado
+//muestra el ultimo de los 3
+>cur.sort((name:-1)).limit(3).skip(2);
+========================================================
+Counting results
+=====================================
+//count command
+db.scores.find({type:"exam"})
+db.scores.count({type:"exam"})
+//devuelve essay yscore mayor q
+db.scores.count({type:"essay",score:{$gt:90}})
+==================================================
+wholescale updating of a document
+=================================================
+db.people.update({query}, {replace})
+db.people.update({name:"Smith"}.{name:"Thompseon",salary:50000})
+
+============================================================
+using the set command y inc
+=============================================================
+operacion que acompaña a update
+establece el campo nuevo
+db.people.update({name:"alice"},{$set:{age:30}})
+
+$inc incrementa el campo
+db.people.update({name:"alice"},{$inc:{age:30}})
+
+db.users.update({'username':'sokybjer'},{$set:{'country':'RU'})}
+
+==============================================================
+using unset command
+===============================================================
+remove a field
+db.people.update({name:"jones"},{$unset:{profession:1}})
+db.users.update({username:"jimi"}{$unset:{interest:1}})
+
+
+===============================================================
+using push, pop, pull, pushAll, pullAll, addToSet
+===========================================================
+> db.arrays.insert({_id:0,a:[1,2,3,4]})
+> db.arrays.findOne()
+{ "_id" : 0, "a" : [ 1, 2, 3, 4 ] }
+//cambiamos el valor de un elemento del array
+db.arrays.update({_id:0},{$set:{"a.2":5}})
+> db.arrays.findOne()
+{ "_id" : 0, "a" : [ 1, 2, 5, 4 ] }
+
+
+//push mete un nuevo elemento en el array
+db.arrays.update({_id:0},{$push:{a:6}})
+> db.arrays.findOne()
+{ "_id" : 0, "a" : [ 1, 2, 5, 4, 6 ] }
+
+// pop eleimina el elemento
+db.arrays.update({_id:0},{$pop:{a:-1}})
+> db.arrays.findOne()
+{ "_id" : 0, "a" : [ 2, 5, 4, 6, 6 ] }
+> 
+
+//se pueden añadir varios elementos a un array con pushAll
+db.arrays.update({_id:0},{$pushAll:{a:[7,8,9]}})
+> db.arrays.findOne()
+{ "_id" : 0, "a" : [ 2, 5, 4, 6, 6, 7, 8, 9 ] }
+> 
+//se pueden remover sin importar donde este colocado en el array
+db.arrays.update({_id:0},{$pull:{a:5}})
+> db.arrays.findOne()
+{ "_id" : 0, "a" : [ 2, 4, 6, 6, 7, 8, 9 ] }
+
+//y ademas borrar una lista
+db.arrays.update({_id:0},{$pullAll:{a:[5,7,9]}})
+
+
+//addToSet lo añade si no existe y sino lo hace como push
+db.arrays.update({_id:0},{$addToSet:{a:,9}})
+
+================================================================================
+Multi update
+==========================================================================
+db.people.update({}            , {$set:{title:"Dr"}}, {multi:true})
+		every document
+
+db.scores.update({score:{$lt:70}},{$inc:{score:20}},{multi:true})
+
+=================================================
+removing data
+=======================================
+1)todos
+db.people.remove({})
+2)uno
+db.people.remove({"name":"Joshephhh"})
+3)subset
+db.people.remove({name:{$gt:"M"}})
+4)drop a colleciton
+db.people.drop() ->true
+
+db.scores.remove({score:{$lt:60}})
+
+====================================================================
+getLastError
+=============================================================
+si algo sale mal, el shell te da informacion
+db.people.insert({_id:"Smith",age:30})
+> db.people.insert({_id:"Smith",age:30})
+E11000 duplicate key error index: test.people.$_id_  dup key: { : "Smith" }
+da un documento con un valor no nulo
+db.runCommand({getLastError:1})
+{
+	"err" : "E11000 duplicate key error index: test.people.$_id_  dup key: { : \"Smith\" }",
+	"code" : 11000,
+	"n" : 0,
+	"connectionId" : 1,
+	"ok" : 1
+}
+> db.people.insert({_id:"Diego",age:30})
+> db.runCommand({getLastError:1})
+{ "n" : 0, "connectionId" : 1, "err" : null, "ok" : 1 }
+> 
+el campo es nulo
+
+esto se puede escalar a las demas operaciones
+como upsert actualiza si existe
+db.people.update({name:"thompsen"},{$set:{title:"dr"}},{upsert:true})
+
+====================================================
+Java dirver: representing documents
+================================================
+CRUD
+-----
+insert(DBObject) ¿what is the type of the paramter? Map <string,object>   /No 
+					linkedHashMap //no
+					DBObject      <- interface BasicDBObject
+find
+update
+remove
+
+
+
+=============================================================
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

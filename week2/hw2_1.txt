@@ -1,0 +1,25 @@
+#Find all exam scores greater than or equal to 65 and sort those scores from lowest to highest.
+What is the student_id of the lowest score above 65
+> db.grades.find({"score":{$gte:65}},{"_id":false}).sort({"score":1})
+{ "student_id" : 114, "type" : "exam", "score" : 65.01218883060295 }
+{ "student_id" : 82, "type" : "homework", "score" : 65.03222673994054 }
+{ "student_id" : 189, "type" : "homework", "score" : 65.31637897885815 }
+{ "student_id" : 113, "type" : "homework", "score" : 65.35277599750722 }
+{ "student_id" : 129, "type" : "quiz", "score" : 65.44941546686266 }
+{ "student_id" : 91, "type" : "homework", "score" : 65.65553336784265 }
+{ "student_id" : 155, "type" : "homework", "score" : 65.76015923600055 }
+{ "student_id" : 179, "type" : "quiz", "score" : 65.92374780656894 }
+{ "student_id" : 139, "type" : "quiz", "score" : 65.94855578471041 }
+{ "student_id" : 197, "type" : "homework", "score" : 65.95509646832625 }
+{ "student_id" : 22, "type" : "homework", "score" : 66.01262525616049 }
+{ "student_id" : 35, "type" : "exam", "score" : 66.24589791689897 }
+{ "student_id" : 129, "type" : "homework", "score" : 66.3260492656562 }
+{ "student_id" : 177, "type" : "homework", "score" : 66.43585224786528 }
+{ "student_id" : 192, "type" : "homework", "score" : 66.7467862185577 }
+{ "student_id" : 69, "type" : "homework", "score" : 66.79936479974248 }
+{ "student_id" : 145, "type" : "homework", "score" : 67.17490890144042 }
+{ "student_id" : 153, "type" : "homework", "score" : 67.21639732045482 }
+{ "student_id" : 26, "type" : "homework", "score" : 67.36388143257277 }
+{ "student_id" : 127, "type" : "homework", "score" : 67.4724121863255 }
+Type "it" for more
+
